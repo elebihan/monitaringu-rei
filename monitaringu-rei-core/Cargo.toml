@@ -1,0 +1,29 @@
+[package]
+name = "monitaringu-rei-core"
+version = "0.1.1"
+authors = ["Eric Le Bihan <eric.le.bihan.dev@free.fr>"]
+license = "MIT"
+homepage = "https://github.com/elebihan/monitoringu-rei"
+description = """
+Monitaringu Rei command line tool and functions.
+
+This tool starts a child program and monitors the files it creates.
+"""
+edition = "2018"
+
+[dependencies]
+anyhow = "1.0.38"
+ctrlc = { version = "3.1.9", features = ["termination"] }
+log = "0.4.14"
+notify = "4.0.16"
+pretty_env_logger = "0.4.0"
+structopt = "0.3.21"
+thiserror = "1.0.23"
+regex = "1.5.4"
+
+[build-dependencies]
+structopt = "0.3.21"
+
+[[bin]]
+name = "monitaringu-rei"
+path = "src/main.rs"
