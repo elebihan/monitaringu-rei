@@ -1,0 +1,102 @@
+# French translations for Monitaringu Rei package.
+# Copyright (C) 2021 Eric Le Bihan
+# This file is distributed under the same license as the Monitaringu Rei package.
+# Eric Le Bihan <eric.le.bihan.dev@free.fr>, 2021.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.1.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-05-21 20:05+0000\n"
+"PO-Revision-Date: 2021-05-21 21:51+0200\n"
+"Last-Translator: Eric Le Bihan <eric.le.bihan.dev@free.fr>\n"
+"Language-Team: Eric Le Bihan <eric.le.bihan.dev@free.fr>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: src/app.rs:79
+msgid "An error occurred: {}"
+msgstr "Une erreur est survenue : {}"
+
+#: src/app.rs:145
+msgid "Missing parameters"
+msgstr "Paramètres maquants"
+
+#: src/app.rs:200
+msgid "Failed to start: {:?}"
+msgstr "Impossible de démarrer : {:?}"
+
+#: src/app.rs:209
+msgid "Failed to stop: {:?}"
+msgstr "Impossible d'arrêter : {:?}"
+
+#: src/dialogs.rs:18
+msgid "Start a program and monitor the files it creates."
+msgstr "Démarre un programme et surveille les fichiers qu'il crée"
+
+#: src/window.rs:154
+msgid "Filename"
+msgstr "Nom de fichier"
+
+#: data/gtk/menus.ui:7
+msgid "_About Monitaringu Rei"
+msgstr "À _Propos de Monitaringu Rei"
+
+#: data/gtk/menus.ui:11
+msgid "_Quit"
+msgstr "_Quitter"
+
+#: data/gtk/window.ui:26
+msgid "Pattern of the names of the files to monitor"
+msgstr "Modèle de noms de fichiers à surveiller"
+
+#: data/gtk/window.ui:38
+msgid "Directory to monitor for new files"
+msgstr "Répertoire à surveiller pour de nouveaux fichiers"
+
+#: data/gtk/window.ui:41
+msgid "Choose directory to monitor"
+msgstr "Choisissez un répertoire à surveiller"
+
+#: data/gtk/window.ui:53
+msgid "_Command"
+msgstr "_Commande"
+
+#: data/gtk/window.ui:67
+msgid "File _pattern"
+msgstr "_Modèle de fichier"
+
+#: data/gtk/window.ui:81
+msgid "_Directory"
+msgstr "_Répertoire"
+
+#: data/gtk/window.ui:94
+msgid "Command to execute"
+msgstr "Commande à exécuter"
+
+#: data/gtk/window.ui:121
+msgid "Start command and monitoring"
+msgstr "Démarre une commande et la surveillance"
+
+#: data/gtk/window.ui:123
+msgid "St_art"
+msgstr "_Démarrer"
+
+#: data/gtk/window.ui:136
+msgid "Stop command and monitoring"
+msgstr "Arrête la commande et la surveillance"
+
+#: data/gtk/window.ui:138
+msgid "St_op"
+msgstr "_Arrêter"
+
+#: data/gtk/window.ui:196
+msgid "Files"
+msgstr "Fichiers"
+
+#: data/gtk/window.ui:213
+msgid "List of newly created files"
+msgstr "Liste des fichiers nouvellement créés"

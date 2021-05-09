@@ -8,3 +8,4 @@ meson_options.txt
 README.md
 shell-completion
 monitaringu-rei-core
+monitaringu-rei-gtk

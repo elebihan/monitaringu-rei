@@ -1,0 +1,14 @@
+//
+// This file is part of monitaringu-rei
+//
+// Copyright (C) 2021 Eric Le Bihan <eric.le.bihan.dev@free.fr>
+//
+// SPDX-License-Identifier: MIT
+//
+
+pub static GETTEXT_PACKAGE: &'static str = @GETTEXT_PACKAGE_GTK@;
+pub static DATADIR: &'static str = @PACKAGE_DATADIR@;
+pub static LOCALEDIR: &'static str = @LOCALEDIR@;
+pub static APPLICATION_ID: &'static str = "com.elebihan.monitaringu-rei-gtk";
+pub static APPLICATION_NAME: &'static str = "Monitaringu Rei";
+pub static APPLICATION_VERSION: &'static str = @PACKAGE_VERSION@;

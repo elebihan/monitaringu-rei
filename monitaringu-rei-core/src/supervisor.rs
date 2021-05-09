@@ -48,7 +48,7 @@ impl Supervisor {
 
     pub fn run<F>(&mut self, should_quit: Arc<AtomicBool>, func: F) -> Result<()>
     where
-        F: Fn(&PathBuf),
+        F: Fn(&Path),
     {
         let relax_delay = Duration::from_secs(1);
         let (tx, rx) = channel();
