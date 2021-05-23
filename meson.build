@@ -39,6 +39,15 @@ endif
 cargo = find_program('cargo')
 cargo_vendor = find_program('cargo-vendor', required: false)
 cargo_wrapper = find_program('build-aux/cargo')
+cargo_target = 'native'
+
+if meson.is_cross_build()
+  host_cmds = meson.get_compiler('rust', native: false).cmd_array()
+  if host_cmds.contains('--target')
+    cargo_target = host_cmds.get(2)
+  endif
+  message('Rust target is @0@'.format(cargo_target))
+endif
 
 monitaringu_rei_build_files = files(
   'Cargo.toml',

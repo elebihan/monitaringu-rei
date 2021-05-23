@@ -12,11 +12,19 @@ import shutil
 import subprocess
 import sys
 
-srcdir, builddir, destdir, program, mode = sys.argv[1:6]
+srcdir, builddir, output, mode, target = sys.argv[1:6]
 
 args = ["cargo", "build", "--manifest-path", os.path.join(srcdir, "Cargo.toml")]
 if mode == "release":
     args.append("--release")
+
+outdir = os.path.join(builddir, "target")
+
+if target != "native":
+    outdir = os.path.join(outdir, target)
+    args += ["--target", target]
+
+exe = os.path.join(outdir, mode, os.path.basename(output))
 
 subprocess.check_call(
     args,
@@ -27,4 +35,4 @@ subprocess.check_call(
     ),
 )
 
-shutil.copy(os.path.join(builddir, "target", mode, program), destdir)
+shutil.copy(exe, output)

@@ -8,6 +8,12 @@
 
 subdir('src')
 
+program = 'monitaringu-rei'
+
+if cargo_target.contains('windows')
+  program += '.exe'
+endif
+
 monitaringu_rei = custom_target('monitaringu-rei',
                                 build_by_default: true,
                                 console: true,
@@ -15,7 +21,7 @@ monitaringu_rei = custom_target('monitaringu-rei',
                                   monitaringu_rei_build_files,
                                   monitaringu_rei_core_sources,
                                 ],
-                                output: ['monitaringu-rei'],
+                                output: [program],
                                 install: true,
                                 install_dir: bindir,
                                 command: [
@@ -23,6 +29,6 @@ monitaringu_rei = custom_target('monitaringu-rei',
                                   meson.current_source_dir(),
                                   meson.build_root(),
                                   '@OUTPUT@',
-                                  'monitaringu-rei',
                                   cargo_mode,
+                                  cargo_target,
                                 ])
