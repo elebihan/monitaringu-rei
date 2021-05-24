@@ -14,6 +14,7 @@ run_command('cp', pkginfo_rs, meson.current_source_dir(), check : true)
 
 monitaringu_rei_gtk_sources = files(
   'app.rs',
+  'app.rc',
   'dialogs.rs',
   'error.rs',
   'header_bar.rs',

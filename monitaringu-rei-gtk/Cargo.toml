@@ -10,6 +10,7 @@ Monitaringu Rei GTK-based graphical interface.
 This tool starts a child program and monitors the files it creates.
 """
 edition = "2018"
+build = "build.rs"
 
 [dependencies]
 once_cell = "1.7.2"

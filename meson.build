@@ -81,6 +81,7 @@ monitaringu_rei_build_files = files(
   'monitaringu-rei-core/Cargo.toml',
   'monitaringu-rei-core/build.rs',
   'monitaringu-rei-gtk/Cargo.toml',
+  'monitaringu-rei-gtk/build.rs',
 )
 
 subdir('shell-completion')
