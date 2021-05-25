@@ -1,0 +1,82 @@
+!define PRODUCT_NAME "Monitaringu Rei"
+!define PRODUCT_VERSION @PACKAGE_VERSION@.0
+!define PRODUCT_COMPANY "elebihan.com"
+!define PRODUCT_COPYRIGHT "2021 Eric Le Bihan"
+
+!include "MUI2.nsh"
+
+VIProductVersion                    "${PRODUCT_VERSION}"
+VIAddVersionKey "ProductVersion"    "${PRODUCT_VERSION}"
+VIAddVersionKey "ProductName"       "${PRODUCT_NAME}"
+VIAddVersionKey "CompanyName"       "${PRODUCT_COMPANY}"
+VIAddVersionKey "FileVersion"       "${PRODUCT_VERSION}"
+VIAddVersionKey "FileDescription"   "${PRODUCT_NAME}"
+VIAddVersionKey "LegalCopyright"    "${PRODUCT_COPYRIGHT}"
+
+Name "${PRODUCT_NAME}"
+OutFile "monitaringu-rei-installer-@PACKAGE_VERSION@.exe"
+InstallDir "$ProgramFiles\elebihan.com\Monitaringu-Rei"
+InstallDirRegKey HKLM SOFTWARE\elebihan.com\Monitaringu-Rei "Install_Dir"
+
+SetCompressor lzma
+
+ShowInstDetails hide
+ShowUninstDetails hide
+
+RequestExecutionLevel admin
+
+!insertmacro MUI_PAGE_WELCOME
+!define MUI_TEXT_WELCOME_INFO_TITLE "Welcome to ${PRODUCT_NAME} installation"
+!insertmacro MUI_LANGUAGE "English"
+
+!define MUI_TEXT_WELCOME_INFO_TITLE "Bienvenue dans l'installation de ${PRODUCT_NAME}"
+!insertmacro MUI_LANGUAGE "French"
+
+!insertmacro MUI_PAGE_LICENSE "LICENSE-MIT"
+
+!insertmacro MUI_PAGE_DIRECTORY
+
+!insertmacro MUI_PAGE_COMPONENTS
+
+!insertmacro MUI_PAGE_INSTFILES
+
+!insertmacro MUI_PAGE_FINISH
+
+!insertmacro MUI_UNPAGE_INSTFILES
+
+!insertmacro MUI_UNPAGE_FINISH
+
+Section "Monitaringu Rei"
+  SectionIn RO
+
+  SetOutPath "$INSTDIR\bin"
+  File /r "@PACKAGE_DIR@/bin/"
+  File "@PACKAGE_DIR@/bin/monitaringu-rei-gtk.exe"
+
+  SetOutPath "$INSTDIR\share"
+  File /r "@PACKAGE_DIR@/share/"
+SectionEnd
+
+Section "Start Menu Shortcuts"
+  CreateDirectory "$SMPROGRAMS\Monitaringu Rei"
+  CreateShortCut "$SMPROGRAMS\Monitaringu Rei\Uninstall Monitaringu Rei.lnk" "$INSTDIR\Uninstall Monitaringu Rei.exe" "" "$INSTDIR\Uninstall Monitaringu Rei.exe" 0
+SectionEnd
+
+Section "Desktop Icons"
+SectionEnd
+
+Section "Uninstall"
+  Delete /rebootok "$SMPROGRAMS\Monitaringu Rei\Uninstall Monitaringu Rei.lnk"
+  RMDir "$SMPROGRAMS\Monitaringu Rei"
+
+  RMDir /r "$INSTDIR\share\"
+
+  Delete /rebootok "$INSTDIR\bin\monitaringu-rei-gtk.exe"
+  RMDir /r "$INSTDIR\bin\"
+
+  RMDir "$INSTDIR"
+SectionEnd
+
+Section -post
+  WriteUninstaller "$INSTDIR\Uninstall Monitaringu Rei.exe"
+SectionEnd
