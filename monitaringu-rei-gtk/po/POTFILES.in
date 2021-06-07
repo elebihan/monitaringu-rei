@@ -1,0 +1,10 @@
+src/app.rs
+src/dialof.rs
+src/header_bar.rs
+src/main.rs
+src/supervisor.rs
+src/resources.rs
+src/window.rs
+
+data/gtk/menus.ui
+data/gtk/window.ui

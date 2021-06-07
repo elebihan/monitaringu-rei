@@ -21,6 +21,26 @@ libdir = join_paths(prefixdir, get_option('libdir'))
 sysconfdir = join_paths(prefixdir, get_option('sysconfdir'))
 includedir = join_paths(prefixdir, get_option('includedir'))
 datadir = join_paths(prefixdir, get_option('datadir'))
+localedir = join_paths(prefixdir, get_option('localedir'))
+pkgdatadir = join_paths(datadir, meson.project_name())
+
+pkg_defs = [
+  ['GETTEXT_PACKAGE', meson.project_name()],
+  ['GETTEXT_PACKAGE_GTK', meson.project_name() + '-gtk'],
+  ['LOCALEDIR', localedir],
+  ['PACKAGE_NAME', meson.project_name()],
+  ['PACKAGE_STRING', '@0@ @1@'.format(meson.project_name(),
+                                      meson.project_version())],
+  ['PACKAGE_VERSION', meson.project_version()],
+  ['PACKAGE_DATADIR', pkgdatadir],
+]
+
+conf = configuration_data()
+
+foreach def : pkg_defs
+  conf.set_quoted(def[0], def[1])
+endforeach
+
 
 enable_man_pages = get_option('man-pages')
 if enable_man_pages
@@ -29,6 +49,12 @@ if enable_man_pages
     subdir('man')
   endif
 endif
+
+gnome = import('gnome')
+i18n = import('i18n')
+
+glib_dep = dependency('glib-2.0', version : '>= 2.44.0')
+gtk_dep = dependency('gtk+-3.0', version : '>= 3.22.0')
 
 if get_option('buildtype').startswith('debug')
   cargo_mode = 'debug'
@@ -54,14 +80,17 @@ monitaringu_rei_build_files = files(
   'Cargo.lock',
   'monitaringu-rei-core/Cargo.toml',
   'monitaringu-rei-core/build.rs',
+  'monitaringu-rei-gtk/Cargo.toml',
+  'monitaringu-rei-gtk/build.rs',
 )
 
 subdir('shell-completion')
 subdir('monitaringu-rei-core')
+subdir('monitaringu-rei-gtk')
 
 archive = meson.project_name() + '-' + meson.project_version()
 distribute = run_target('distribute',
-                        depends : monitaringu_rei,
+                        depends : [monitaringu_rei, monitaringu_rei_gtk],
                         command : ['build-aux/distribute', archive])
 
 status = [

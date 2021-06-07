@@ -1,0 +1,23 @@
+1 VERSIONINFO
+FILEVERSION     0,1,1,0
+PRODUCTVERSION  0,1,1,0
+BEGIN
+BLOCK "StringFileInfo"
+BEGIN
+    BLOCK "040904E4"
+    BEGIN
+        VALUE "CompanyName", "elebihan.com"
+        VALUE "FileDescription", "Monitaringu Rei GTK-based graphical interface"
+        VALUE "FileVersion", "0.1.1"
+        VALUE "InternalName", "monitaringu-rei-gtk"
+        VALUE "LegalCopyright", "2021 Eric Le Bihan"
+        VALUE "OriginalFilename", "monitaringu-rei-gtk.exe"
+        VALUE "ProductName", "Monitaringu Rei"
+        VALUE "ProductVersion", "0.1.1"
+    END
+END
+BLOCK "VarFileInfo"
+BEGIN
+    VALUE "Translation", 0x409, 1252
+END
+END

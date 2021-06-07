@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=monitaringu-rei-gtk
+Comment=Simple tool to start a program and monitor the files it creates
+TryExec=monitaringu-rei-gtk
+Exec=monitaringu-rei-gtk
+StartupNotify=true
+Terminal=false
+Type=Application
+Icon=com.elebihan.monitaringu-rei-gtk
+Categories=GTK;Utility

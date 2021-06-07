@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/com/elebihan/monitaringu-rei-gtk/">
+    <file compressed="true" preprocess="xml-stripblanks">gtk/menus.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">gtk/window.ui</file>
+  </gresource>
+</gresources>
