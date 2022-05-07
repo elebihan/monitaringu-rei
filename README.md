@@ -13,15 +13,15 @@ Simple tool to start a program and monitor the files it creates.
 To configure and build the project, execute:
 
 ```sh
-mkdir build
-meson . build
-ninja -C build
+mkdir _build
+meson . _build --buildtype=release
+ninja -C _build
 ```
 
 To install the tools to system directories, execute:
 
 ```sh
-ninja -C build install
+ninja -C _build install
 ```
 
 ## Usage
