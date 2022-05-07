@@ -29,7 +29,7 @@ ninja -C _build install
 To monitor the create of a test file every seconds in ``/tmp/foo``:
 
 ```sh
-monitaringu-rei-core -D /tmp/foo -- sh -c 'while true; do touch /tmp/foo/test-$RANDOM; sleep 1; done
+monitaringu-rei-core -D /tmp/foo -- sh -c 'while true; do touch /tmp/foo/test-$RANDOM; sleep 1; done'
 ```
 
 ## License
