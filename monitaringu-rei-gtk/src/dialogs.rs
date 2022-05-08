@@ -22,7 +22,7 @@ pub fn show_about_dialog(application: &gtk::Application) {
     dialog.set_copyright(Some("Copyright © 2021 Eric Le Bihan"));
     dialog.set_license_type(gtk::License::MitX11);
     dialog.set_logo_icon_name(Some(&APPLICATION_ID));
-    dialog.set_transient_for(application.get_active_window().as_ref());
+    dialog.set_transient_for(application.active_window().as_ref());
     dialog.set_modal(true);
     dialog.show_all();
 }

@@ -16,7 +16,7 @@ pub fn create() -> gtk::HeaderBar {
 
     let builder = gtk::Builder::from_resource("/com/elebihan/monitaringu-rei-gtk/gtk/menus.ui");
     let menu = builder
-        .get_object::<gio::MenuModel>("application-menu")
+        .object::<gio::MenuModel>("application-menu")
         .expect("Can not find menu");
 
     let menu_button = gtk::MenuButton::new();
