@@ -27,7 +27,7 @@ monitaringu_rei = custom_target('monitaringu-rei',
                                 command: [
                                   cargo_wrapper,
                                   meson.current_source_dir(),
-                                  meson.build_root(),
+                                  meson.project_build_root(),
                                   '@OUTPUT@',
                                   cargo_mode,
                                   cargo_target,

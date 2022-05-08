@@ -18,7 +18,7 @@ gnome.compile_resources('monitaringu-rei-gtk',
 i18n.merge_file(input : 'com.elebihan.monitaringu-rei-gtk.desktop.in',
                 output : 'com.elebihan.monitaringu-rei-gtk.desktop',
                 type : 'desktop',
-                po_dir : join_paths(meson.source_root(), 'po'),
+                po_dir : join_paths(meson.project_source_root(), 'po'),
                 install : true,
                 install_dir : join_paths(datadir,'applications')
 )
