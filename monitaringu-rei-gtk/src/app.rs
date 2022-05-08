@@ -115,7 +115,7 @@ impl Application {
     }
 
     fn setup_gactions(&self) {
-        let win = self.get_window();
+        let win = self.window();
         let app = self.clone().upcast::<gtk::Application>();
         let quit = gio::SimpleAction::new("quit", None);
         quit.connect_activate(clone!(@weak app => move |_,_| {
@@ -127,7 +127,7 @@ impl Application {
         }));
         let start = gio::SimpleAction::new("start", None);
         start.connect_activate(clone!(@weak self as app, @weak win => move |_,_| {
-            match win.get_settings() {
+            match win.settings() {
                 Some(settings) => {
                     app.start_supervisor(settings);
                 },
@@ -146,12 +146,12 @@ impl Application {
         app.add_action(&stop);
     }
 
-    fn get_window(&self) -> &ApplicationWindow {
+    fn window(&self) -> &ApplicationWindow {
         imp::Application::from_instance(self).window.get().unwrap()
     }
 
     fn set_busy(&self, busy: bool) {
-        self.get_window().set_busy(busy);
+        self.window().set_busy(busy);
         let app = self.clone().upcast::<gtk::Application>();
         let start = app
             .lookup_action("start")
@@ -168,7 +168,7 @@ impl Application {
     }
 
     fn notify_error(&self, message: &str) {
-        let win = self.get_window().clone();
+        let win = self.window().clone();
         show_error_dialog(&win.upcast::<gtk::Window>(), message);
     }
 
@@ -200,7 +200,7 @@ impl Application {
     }
 
     fn add_result(&self, path_buf: PathBuf) -> glib::Continue {
-        let win = self.get_window();
+        let win = self.window();
         win.add_result(path_buf);
         glib::Continue(true)
     }

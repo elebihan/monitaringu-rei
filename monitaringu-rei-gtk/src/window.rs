@@ -164,7 +164,7 @@ impl ApplicationWindow {
         imp.stop_button.set_sensitive(busy);
     }
 
-    pub fn get_settings(&self) -> Option<Settings> {
+    pub fn settings(&self) -> Option<Settings> {
         let imp = self.imp();
         let command = imp.command_entry.text();
         let directory = imp.directory_chooser.uri();
