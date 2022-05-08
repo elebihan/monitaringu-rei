@@ -173,7 +173,7 @@ impl Application {
     }
 
     fn start_supervisor(&self, settings: Settings) {
-        let imp = imp::Application::from_instance(self);
+        let imp = self.imp();
         if imp.supervisor.borrow().is_some() {
             self.stop_supervisor();
         }
@@ -189,7 +189,7 @@ impl Application {
     }
 
     fn stop_supervisor(&self) {
-        let imp = imp::Application::from_instance(self);
+        let imp = self.imp();
         if let Some(supervisor) = imp.supervisor.take() {
             if let Err(e) = supervisor.kill() {
                 self.notify_error(&gettext!("Failed to stop: {:?}", e));

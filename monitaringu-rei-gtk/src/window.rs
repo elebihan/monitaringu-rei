@@ -115,12 +115,12 @@ impl ApplicationWindow {
         col.set_sort_indicator(true);
         col.set_sort_column_id(0);
 
-        let imp = imp::ApplicationWindow::from_instance(self);
+        let imp = self.imp();
         imp.results_tree_view.append_column(&col);
         imp.results_tree_view.set_model(Some(&self.model()));
         imp.results_tree_view
             .connect_size_allocate(clone!(@weak self as this => move |_,_| {
-                let imp = imp::ApplicationWindow::from_instance(&this);
+                let imp = this.imp();
                 let adj = imp.results_scrolled_window.vadjustment();
                 adj.set_value(adj.upper() - adj.page_size());
             }));
