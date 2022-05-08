@@ -13,7 +13,7 @@ project('monitaringu-rei', 'rust',
           'prefix=/usr/local',
           'sysconfdir=/etc',
         ],
-        meson_version : '>= 0.50')
+        meson_version : '>= 0.56')
 
 prefixdir = get_option('prefix')
 bindir = join_paths(prefixdir, get_option('bindir'))

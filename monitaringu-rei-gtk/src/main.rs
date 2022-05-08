@@ -8,7 +8,6 @@
 
 #![windows_subsystem = "windows"]
 
-use std::env::args;
 use std::error;
 use std::result::Result;
 
@@ -22,7 +21,7 @@ fn main() -> Result<(), Box<dyn error::Error>> {
     i18n::init();
 
     let app = Application::new();
-    app.run(&args().collect::<Vec<_>>());
+    app.run();
 
     Ok(())
 }

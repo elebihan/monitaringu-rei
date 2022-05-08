@@ -7,10 +7,8 @@
 //
 
 use gettextrs::gettext;
-use gio::{self, prelude::*, subclass::prelude::*, ActionMapExt, ApplicationFlags};
-use glib::subclass;
-use glib::translate::*;
-use glib::{clone, glib_object_impl, glib_object_subclass, glib_wrapper, Receiver, Sender};
+use gio::{self, prelude::*, subclass::prelude::*, ApplicationFlags};
+use glib::{clone, Receiver, Sender};
 use gtk::prelude::*;
 use gtk::subclass::application::GtkApplicationImpl;
 use once_cell::unsync::OnceCell;
@@ -24,109 +22,100 @@ use crate::{
     window::ApplicationWindow,
 };
 
-pub struct ApplicationPrivate {
-    window: OnceCell<ApplicationWindow>,
-    supervisor: RefCell<Option<Supervisor>>,
-    receiver: RefCell<Option<Receiver<Message>>>,
-    sender: Sender<Message>,
-}
+mod imp {
 
-impl ObjectSubclass for ApplicationPrivate {
-    const NAME: &'static str = "Application";
-    type ParentType = gtk::Application;
-    type Instance = subclass::simple::InstanceStruct<Self>;
-    type Class = subclass::simple::ClassStruct<Self>;
+    use super::*;
 
-    glib_object_subclass!();
+    pub struct Application {
+        pub window: OnceCell<ApplicationWindow>,
+        pub supervisor: RefCell<Option<Supervisor>>,
+        pub receiver: RefCell<Option<Receiver<Message>>>,
+        pub sender: Sender<Message>,
+    }
 
-    fn new() -> Self {
-        let (sender, receiver) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
-        let receiver = RefCell::new(Some(receiver));
-        let window = OnceCell::new();
-        let supervisor = RefCell::new(None);
-        Self {
-            window,
-            supervisor,
-            receiver,
-            sender,
+    #[glib::object_subclass]
+    impl ObjectSubclass for Application {
+        const NAME: &'static str = "Application";
+        type Type = super::Application;
+        type ParentType = gtk::Application;
+
+        fn new() -> Self {
+            let (sender, receiver) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+            let receiver = RefCell::new(Some(receiver));
+            let window = OnceCell::new();
+            let supervisor = RefCell::new(None);
+            Self {
+                window,
+                supervisor,
+                receiver,
+                sender,
+            }
+        }
+    }
+
+    impl ObjectImpl for Application {}
+
+    impl GtkApplicationImpl for Application {}
+
+    impl ApplicationImpl for Application {
+        fn activate(&self, app: &Self::Type) {
+            let app = app
+                .clone()
+                .downcast::<super::Application>()
+                .expect("Failed to downcast Application");
+            app.setup_gactions();
+
+            let window = self
+                .window
+                .get()
+                .expect("ApplicationWindow not initialized");
+
+            let receiver = self.receiver.borrow_mut().take().unwrap();
+            receiver.attach(None, move |message| match message {
+                Message::FileCreated(path_buf) => app.add_result(path_buf),
+                Message::Error(e) => {
+                    app.notify_error(&gettext!("An error occurred: {}", e));
+                    app.stop_supervisor();
+                    glib::Continue(true)
+                }
+            });
+
+            window.show_all();
+            window.present();
+        }
+
+        fn startup(&self, app: &Self::Type) {
+            self.parent_startup(app);
+            let window = ApplicationWindow::new(&app);
+            self.window
+                .set(window)
+                .expect("Failed to initialize ApplicationWindow");
+            app.set_accels_for_action("app.start", &["<Primary>x"]);
+            app.set_accels_for_action("app.stop", &["<Primary>d"]);
+            app.set_accels_for_action("app.quit", &["<Primary>q"]);
         }
     }
 }
 
-impl ObjectImpl for ApplicationPrivate {
-    glib_object_impl!();
-}
-
-impl GtkApplicationImpl for ApplicationPrivate {}
-
-impl ApplicationImpl for ApplicationPrivate {
-    fn activate(&self, app: &gio::Application) {
-        let app = app
-            .clone()
-            .downcast::<Application>()
-            .expect("Failed to downcast Application");
-        app.setup_gactions();
-
-        let window = self
-            .window
-            .get()
-            .expect("ApplicationWindow not initialized");
-
-        let receiver = self.receiver.borrow_mut().take().unwrap();
-        receiver.attach(None, move |message| match message {
-            Message::FileCreated(path_buf) => app.add_result(path_buf),
-            Message::Error(e) => {
-                app.notify_error(&gettext!("An error occurred: {}", e));
-                app.stop_supervisor();
-                glib::Continue(true)
-            }
-        });
-
-        window.show_all();
-        window.present();
-    }
-
-    fn startup(&self, app: &gio::Application) {
-        self.parent_startup(app);
-        let app = app.downcast_ref::<gtk::Application>().unwrap();
-        let window = ApplicationWindow::new(&app);
-        self.window
-            .set(window)
-            .expect("Failed to initialize ApplicationWindow");
-        app.set_accels_for_action("app.start", &["<Primary>x"]);
-        app.set_accels_for_action("app.stop", &["<Primary>d"]);
-        app.set_accels_for_action("app.quit", &["<Primary>q"]);
-    }
-}
-
-glib_wrapper! {
+glib::wrapper! {
     pub struct Application(
-        Object<subclass::simple::InstanceStruct<ApplicationPrivate>,
-        subclass::simple::ClassStruct<ApplicationPrivate>,
-        ApplicationClass>)
+       ObjectSubclass<imp::Application>)
         @extends gio::Application, gtk::Application;
-
-    match fn {
-        get_type => || ApplicationPrivate::get_type().to_glib(),
-    }
 }
 
 impl Application {
     pub fn new() -> Self {
-        glib::Object::new(
-            Application::static_type(),
-            &[
-                ("application-id", &APPLICATION_ID),
-                ("flags", &ApplicationFlags::NON_UNIQUE),
-            ],
-        )
+        glib::Object::new::<Application>(&[
+            ("application-id", &APPLICATION_ID),
+            ("flags", &ApplicationFlags::NON_UNIQUE),
+        ])
         .expect("Failed to create Application")
         .downcast()
         .expect("Wrong type for Application")
     }
 
     fn setup_gactions(&self) {
-        let win = self.get_window();
+        let win = self.window();
         let app = self.clone().upcast::<gtk::Application>();
         let quit = gio::SimpleAction::new("quit", None);
         quit.connect_activate(clone!(@weak app => move |_,_| {
@@ -138,7 +127,7 @@ impl Application {
         }));
         let start = gio::SimpleAction::new("start", None);
         start.connect_activate(clone!(@weak self as app, @weak win => move |_,_| {
-            match win.get_settings() {
+            match win.settings() {
                 Some(settings) => {
                     app.start_supervisor(settings);
                 },
@@ -157,15 +146,12 @@ impl Application {
         app.add_action(&stop);
     }
 
-    fn get_window(&self) -> &ApplicationWindow {
-        ApplicationPrivate::from_instance(self)
-            .window
-            .get()
-            .unwrap()
+    fn window(&self) -> &ApplicationWindow {
+        imp::Application::from_instance(self).window.get().unwrap()
     }
 
     fn set_busy(&self, busy: bool) {
-        self.get_window().set_busy(busy);
+        self.window().set_busy(busy);
         let app = self.clone().upcast::<gtk::Application>();
         let start = app
             .lookup_action("start")
@@ -182,12 +168,12 @@ impl Application {
     }
 
     fn notify_error(&self, message: &str) {
-        let win = self.get_window().clone();
+        let win = self.window().clone();
         show_error_dialog(&win.upcast::<gtk::Window>(), message);
     }
 
     fn start_supervisor(&self, settings: Settings) {
-        let imp = ApplicationPrivate::from_instance(self);
+        let imp = self.imp();
         if imp.supervisor.borrow().is_some() {
             self.stop_supervisor();
         }
@@ -203,7 +189,7 @@ impl Application {
     }
 
     fn stop_supervisor(&self) {
-        let imp = ApplicationPrivate::from_instance(self);
+        let imp = self.imp();
         if let Some(supervisor) = imp.supervisor.take() {
             if let Err(e) = supervisor.kill() {
                 self.notify_error(&gettext!("Failed to stop: {:?}", e));
@@ -214,7 +200,7 @@ impl Application {
     }
 
     fn add_result(&self, path_buf: PathBuf) -> glib::Continue {
-        let win = self.get_window();
+        let win = self.window();
         win.add_result(path_buf);
         glib::Continue(true)
     }

@@ -8,146 +8,104 @@
 
 use gettextrs::gettext;
 use gio::{self, prelude::*, subclass::prelude::*};
-use glib::subclass;
-use glib::translate::*;
-use glib::{clone, glib_object_impl, glib_object_subclass, glib_wrapper};
+use glib::clone;
 use gtk::prelude::*;
 use gtk::subclass::application_window::ApplicationWindowImpl;
 use gtk::subclass::prelude::*;
-use once_cell::unsync::OnceCell;
+use gtk::CompositeTemplate;
+use std::cell::RefCell;
 use std::path::PathBuf;
 
+use crate::app::Application;
 use crate::header_bar;
 use crate::supervisor::Settings;
 
-#[derive(Debug)]
-struct WindowWidgets {
-    header_bar: gtk::HeaderBar,
-    command_entry: gtk::Entry,
-    pattern_entry: gtk::Entry,
-    directory_chooser: gtk::FileChooserButton,
-    start_button: gtk::ToolButton,
-    stop_button: gtk::ToolButton,
-    activity_spinner: gtk::Spinner,
-    results_tree_view: gtk::TreeView,
-}
+mod imp {
+    use super::*;
 
-pub struct ApplicationWindowPrivate {
-    builder: gtk::Builder,
-    widgets: OnceCell<WindowWidgets>,
-    model: gtk::ListStore,
-}
+    #[derive(Default, Debug, CompositeTemplate)]
+    #[template(resource = "/com/elebihan/monitaringu-rei-gtk/gtk/window.ui")]
+    pub struct ApplicationWindow {
+        #[template_child]
+        pub command_entry: TemplateChild<gtk::Entry>,
+        #[template_child]
+        pub pattern_entry: TemplateChild<gtk::Entry>,
+        #[template_child]
+        pub directory_chooser: TemplateChild<gtk::FileChooserButton>,
+        #[template_child]
+        pub start_button: TemplateChild<gtk::ToolButton>,
+        #[template_child]
+        pub stop_button: TemplateChild<gtk::ToolButton>,
+        #[template_child]
+        pub activity_spinner: TemplateChild<gtk::Spinner>,
+        #[template_child]
+        pub results_scrolled_window: TemplateChild<gtk::ScrolledWindow>,
+        #[template_child]
+        pub results_tree_view: TemplateChild<gtk::TreeView>,
+        pub model: RefCell<Option<gtk::ListStore>>,
+    }
 
-impl ObjectSubclass for ApplicationWindowPrivate {
-    const NAME: &'static str = "ApplicationWindow";
-    type ParentType = gtk::ApplicationWindow;
-    type Instance = subclass::simple::InstanceStruct<Self>;
-    type Class = subclass::simple::ClassStruct<Self>;
+    #[glib::object_subclass]
+    impl ObjectSubclass for ApplicationWindow {
+        const NAME: &'static str = "ApplicationWindow";
+        type Type = super::ApplicationWindow;
+        type ParentType = gtk::ApplicationWindow;
 
-    glib_object_subclass!();
+        fn class_init(klass: &mut Self::Class) {
+            Self::bind_template(klass);
+        }
 
-    fn new() -> Self {
-        let builder =
-            gtk::Builder::from_resource("/com/elebihan/monitaringu-rei-gtk/gtk/window.ui");
-        // builder.set_translation_domain(Some("monitaringu-rei-gtk"));
-        Self {
-            builder,
-            widgets: OnceCell::new(),
-            model: gtk::ListStore::new(&[String::static_type()]),
+        fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
+            obj.init_template();
         }
     }
-}
 
-impl ObjectImpl for ApplicationWindowPrivate {
-    glib_object_impl!();
-
-    fn constructed(&self, obj: &glib::Object) {
-        self.parent_constructed(obj);
-
-        let self_ = obj.downcast_ref::<ApplicationWindow>().unwrap();
-
-        let header_bar = header_bar::create();
-        self_.set_titlebar(Some(&header_bar));
-
-        let builder = &self.builder;
-
-        let command_entry = builder.get_object("command_entry").unwrap();
-        let pattern_entry = builder.get_object("pattern_entry").unwrap();
-        let directory_chooser = builder.get_object("directory_chooser").unwrap();
-        let start_button = builder.get_object("start_button").unwrap();
-        let stop_button = builder.get_object("stop_button").unwrap();
-        let activity_spinner = builder.get_object("activity_spinner").unwrap();
-        let results_scrolled_window: gtk::ScrolledWindow =
-            builder.get_object("results_scrolled_window").unwrap();
-        let results_tree_view: gtk::TreeView = builder.get_object("results_tree_view").unwrap();
-        results_tree_view.set_model(Some(&self.model));
-        results_tree_view.connect_size_allocate(
-            clone!(@weak results_scrolled_window => move |_,_| {
-                let adj = results_scrolled_window.get_vadjustment().unwrap();
-                adj.set_value(adj.get_upper()- adj.get_page_size());
-            }),
-        );
-
-        let main_box: gtk::Box = builder.get_object("main_box").unwrap();
-
-        self_.add(&main_box);
-
-        self.widgets
-            .set(WindowWidgets {
-                header_bar,
-                command_entry,
-                pattern_entry,
-                directory_chooser,
-                start_button,
-                stop_button,
-                activity_spinner,
-                results_tree_view,
-            })
-            .expect("Failed to initialize ApplicationWindow state");
+    impl ObjectImpl for ApplicationWindow {
+        fn constructed(&self, obj: &Self::Type) {
+            obj.setup_model();
+            obj.setup_widgets();
+            self.parent_constructed(obj);
+        }
     }
+
+    impl WidgetImpl for ApplicationWindow {}
+
+    impl ContainerImpl for ApplicationWindow {}
+
+    impl BinImpl for ApplicationWindow {}
+
+    impl WindowImpl for ApplicationWindow {}
+
+    impl ApplicationWindowImpl for ApplicationWindow {}
 }
-
-impl WidgetImpl for ApplicationWindowPrivate {}
-
-impl ContainerImpl for ApplicationWindowPrivate {}
-
-impl BinImpl for ApplicationWindowPrivate {}
-
-impl WindowImpl for ApplicationWindowPrivate {}
-
-impl ApplicationWindowImpl for ApplicationWindowPrivate {}
-
-glib_wrapper! {
-    pub struct ApplicationWindow(
-        Object<subclass::simple::InstanceStruct<ApplicationWindowPrivate>,
-               subclass::simple::ClassStruct<ApplicationWindowPrivate>,
-               ApplicationWindowClass>)
+glib::wrapper! {
+    pub struct ApplicationWindow(ObjectSubclass<imp::ApplicationWindow>)
         @extends gtk::Widget, gtk::Container, gtk::Bin, gtk::Window, gtk::ApplicationWindow;
-
-    match fn {
-        get_type => || ApplicationWindowPrivate::get_type().to_glib(),
-    }
 }
 
 impl ApplicationWindow {
-    pub fn new(app: &gtk::Application) -> Self {
-        let window = glib::Object::new(Self::static_type(), &[("application", app)])
+    pub fn new(app: &Application) -> Self {
+        glib::Object::new::<ApplicationWindow>(&[("application", app)])
             .expect("Failed to create ApplicationWindow")
-            .downcast::<ApplicationWindow>()
-            .expect("Created ApplicationWindow is of wrong type");
-        window.setup_widgets();
-        window.set_size_request(400, 480);
-        window
     }
 
-    fn get_widgets(&self) -> &WindowWidgets {
-        ApplicationWindowPrivate::from_instance(self)
-            .widgets
-            .get()
-            .unwrap()
+    fn model(&self) -> gtk::ListStore {
+        self.imp()
+            .model
+            .borrow()
+            .clone()
+            .expect("Failed to get model")
+    }
+
+    fn setup_model(&self) {
+        let model = gtk::ListStore::new(&[String::static_type()]);
+        self.imp().model.replace(Some(model));
     }
 
     fn setup_widgets(&self) {
+        let header_bar = header_bar::create();
+        self.set_titlebar(Some(&header_bar));
+
         let col = gtk::TreeViewColumn::new();
         let cell = gtk::CellRendererText::new();
         col.pack_end(&cell, true);
@@ -156,15 +114,24 @@ impl ApplicationWindow {
         col.set_clickable(true);
         col.set_sort_indicator(true);
         col.set_sort_column_id(0);
-        let widgets = self.get_widgets();
-        widgets.results_tree_view.append_column(&col);
-        widgets.stop_button.set_sensitive(false);
+
+        let imp = self.imp();
+        imp.results_tree_view.append_column(&col);
+        imp.results_tree_view.set_model(Some(&self.model()));
+        imp.results_tree_view
+            .connect_size_allocate(clone!(@weak self as this => move |_,_| {
+                let imp = this.imp();
+                let adj = imp.results_scrolled_window.vadjustment();
+                adj.set_value(adj.upper() - adj.page_size());
+            }));
+
+        imp.stop_button.set_sensitive(false);
 
         let accel_group = gtk::AccelGroup::new();
         self.add_accel_group(&accel_group);
 
         let (key, modifier) = gtk::accelerator_parse("<Primary>s");
-        widgets.start_button.add_accelerator(
+        imp.start_button.add_accelerator(
             "clicked",
             &accel_group,
             key,
@@ -172,7 +139,7 @@ impl ApplicationWindow {
             gtk::AccelFlags::VISIBLE,
         );
         let (key, modifier) = gtk::accelerator_parse("<Primary>c");
-        widgets.stop_button.add_accelerator(
+        imp.stop_button.add_accelerator(
             "clicked",
             &accel_group,
             key,
@@ -182,26 +149,26 @@ impl ApplicationWindow {
     }
 
     pub fn set_busy(&self, busy: bool) {
-        let widgets = self.get_widgets();
+        let imp = self.imp();
         if busy {
-            widgets.activity_spinner.start();
-            widgets.activity_spinner.show();
+            imp.activity_spinner.start();
+            imp.activity_spinner.show();
         } else {
-            widgets.activity_spinner.stop();
-            widgets.activity_spinner.hide();
+            imp.activity_spinner.stop();
+            imp.activity_spinner.hide();
         }
-        widgets.command_entry.set_sensitive(!busy);
-        widgets.pattern_entry.set_sensitive(!busy);
-        widgets.directory_chooser.set_sensitive(!busy);
-        widgets.start_button.set_sensitive(!busy);
-        widgets.stop_button.set_sensitive(busy);
+        imp.command_entry.set_sensitive(!busy);
+        imp.pattern_entry.set_sensitive(!busy);
+        imp.directory_chooser.set_sensitive(!busy);
+        imp.start_button.set_sensitive(!busy);
+        imp.stop_button.set_sensitive(busy);
     }
 
-    pub fn get_settings(&self) -> Option<Settings> {
-        let widgets = self.get_widgets();
-        let command = widgets.command_entry.get_text();
-        let directory = widgets.directory_chooser.get_uri();
-        let pattern = widgets.pattern_entry.get_text();
+    pub fn settings(&self) -> Option<Settings> {
+        let imp = self.imp();
+        let command = imp.command_entry.text();
+        let directory = imp.directory_chooser.uri();
+        let pattern = imp.pattern_entry.text();
         if let Some(directory) = directory {
             if !command.as_str().is_empty() {
                 return Some(Settings {
@@ -215,12 +182,11 @@ impl ApplicationWindow {
     }
 
     pub fn add_result(&self, path: PathBuf) {
-        let imp = ApplicationWindowPrivate::from_instance(self);
         let path = path
             .into_os_string()
             .into_string()
             .expect("Failed to convert path");
-        let values: [&dyn ToValue; 1] = [&path];
-        imp.model.set(&imp.model.append(), &[0], &values);
+        let values: [(u32, &dyn ToValue); 1] = [(0, &path)];
+        self.model().set(&self.model().append(), &values);
     }
 }
