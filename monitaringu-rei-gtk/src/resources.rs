@@ -6,15 +6,24 @@
 // SPDX-License-Identifier: MIT
 //
 
+use std::env;
 use std::path::PathBuf;
 
 use crate::{error::Result, pkginfo};
 
 pub fn init() -> Result<()> {
-    let mut path = PathBuf::new();
-    path.push(pkginfo::DATADIR);
+    let mut path = if env::var("MESON_DEVENV").is_ok() {
+        let mut path = env::current_exe()?;
+        path.pop();
+        path.push("data");
+        path
+    } else {
+        let mut path = PathBuf::new();
+        path.push(pkginfo::DATADIR);
+        path
+    };
     path.push("monitaringu-rei-gtk.gresource");
-    let resource = gio::Resource::load(path)?;
-    gio::resources_register(&resource);
+    let resources = gio::Resource::load(path)?;
+    gio::resources_register(&resources);
     Ok(())
 }
