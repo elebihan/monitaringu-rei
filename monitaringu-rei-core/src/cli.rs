@@ -30,7 +30,7 @@ pub fn build_opts() -> Opts {
 
 fn run_with_opts(opts: Opts) -> Result<()> {
     let directory = opts.directory.unwrap_or(env::current_dir()?);
-    let mut supervisor = Supervisor::new(&opts.program_exe, &opts.program_args, &directory);
+    let mut supervisor = Supervisor::new(&opts.program_exe, &opts.program_args, directory);
     if let Some(pattern) = &opts.pattern {
         supervisor.pattern(pattern)?;
     }
