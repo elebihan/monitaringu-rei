@@ -86,7 +86,7 @@ mod imp {
 
         fn startup(&self, app: &Self::Type) {
             self.parent_startup(app);
-            let window = ApplicationWindow::new(&app);
+            let window = ApplicationWindow::new(app);
             self.window
                 .set(window)
                 .expect("Failed to initialize ApplicationWindow");
@@ -203,5 +203,11 @@ impl Application {
         let win = self.window();
         win.add_result(path_buf);
         glib::Continue(true)
+    }
+}
+
+impl Default for Application {
+    fn default() -> Self {
+        Self::new()
     }
 }
