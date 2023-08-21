@@ -14,14 +14,14 @@ To configure and build the project, execute:
 
 ```sh
 mkdir _build
-meson . _build --buildtype=release
-ninja -C _build
+meson setup --buildtype=release . _build
+meson compile -C _build
 ```
 
 To install the tools to system directories, execute:
 
 ```sh
-ninja -C _build install
+meson install -C _build
 ```
 
 ## Usage

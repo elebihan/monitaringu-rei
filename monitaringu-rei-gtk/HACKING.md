@@ -1,5 +1,23 @@
 # Hacking on Monitaringu Rei (GTK)
 
+## Development
+
+To build for development (i.e. without installing):
+
+```sh
+mkdir _build
+meson setup . _build
+meson compile -C _build
+```
+
+To test for development:
+
+```sh
+meson devenv -C _build
+cd monitaringu-rei-gtk
+./monitaringu-rei-gtk
+```
+
 ## Translation
 
 To generate the template:
