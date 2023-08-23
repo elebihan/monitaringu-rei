@@ -32,7 +32,7 @@ impl Supervisor {
         S: AsRef<OsStr>,
     {
         let mut program = Command::new(exe);
-        program.args(*&args);
+        program.args(args);
         Supervisor {
             program,
             directory: PathBuf::from(directory.as_ref()),
@@ -62,28 +62,24 @@ impl Supervisor {
                 break;
             }
 
-            if let Ok(status) = child.try_wait() {
-                if let Some(status) = status {
-                    log::info!("Child process has exited with status {}", status);
-                    break;
-                }
+            if let Ok(Some(status)) = child.try_wait() {
+                log::info!("Child process has exited with status {}", status);
+                break;
             }
 
-            if let Ok(event) = rx.try_recv() {
-                if let DebouncedEvent::Create(path) = event {
-                    if let Some(file_name) = path.file_name() {
-                        match file_name.to_str() {
-                            Some(file_name) => {
-                                let is_valid = match &self.pattern {
-                                    Some(pattern) => pattern.is_match(file_name),
-                                    None => true,
-                                };
-                                if is_valid {
-                                    func(&path);
-                                }
+            if let Ok(DebouncedEvent::Create(path)) = rx.try_recv() {
+                if let Some(file_name) = path.file_name() {
+                    match file_name.to_str() {
+                        Some(file_name) => {
+                            let is_valid = match &self.pattern {
+                                Some(pattern) => pattern.is_match(file_name),
+                                None => true,
+                            };
+                            if is_valid {
+                                func(&path);
                             }
-                            None => log::warn!("Skipping invalid file name"),
                         }
+                        None => log::warn!("Skipping invalid file name"),
                     }
                 }
             }

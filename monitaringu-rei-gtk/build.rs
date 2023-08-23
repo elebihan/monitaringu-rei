@@ -15,7 +15,7 @@ fn build_res(input: &Path) -> Result<(), Box<dyn Error>> {
     let out_dir = env::var("OUT_DIR")?;
     let windres = env::var("WINDRES").unwrap_or("windres".to_string());
     let objpath = PathBuf::from(&out_dir).join("winresource.o");
-    let status = Command::new(&windres)
+    let status = Command::new(windres)
         .arg(format!("{}", input.display()))
         .arg(format!("{}", objpath.display()))
         .status()?;
@@ -24,7 +24,7 @@ fn build_res(input: &Path) -> Result<(), Box<dyn Error>> {
     }
     let ar = env::var("AR").unwrap_or("ar".to_string());
     let libpath = PathBuf::from(&out_dir).join("libwinresource.a");
-    let status = Command::new(&ar)
+    let status = Command::new(ar)
         .arg("crus")
         .arg(format!("{}", libpath.display()))
         .arg(format!("{}", objpath.display()))
@@ -34,7 +34,7 @@ fn build_res(input: &Path) -> Result<(), Box<dyn Error>> {
     }
 
     println!("cargo:rustc-link-search=native={}", out_dir);
-    println!("cargo:rustc-lik-lib=static={}", "winresource");
+    println!("cargo:rustc-lik-lib=static=winresource");
 
     Ok(())
 }

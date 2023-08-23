@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: MIT
 //
 
-use gio;
+
 use gtk::{self, prelude::*};
 
 pub fn create() -> gtk::HeaderBar {

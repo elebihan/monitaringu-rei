@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: MIT
 //
 
-use pretty_env_logger;
+
 use std::env;
 
 pub(crate) fn init() {
